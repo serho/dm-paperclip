@@ -77,10 +77,10 @@ module Paperclip
       return nil if uploaded_file.nil?
 
       if uploaded_file.respond_to?(:[])
-        @queued_for_write[:original]   = uploaded_file['tempfile']
-        instance_write(:file_name,       uploaded_file['filename'].strip.gsub(/[^\w\d\.\-]+/, '_'))
-        instance_write(:content_type,    uploaded_file['content_type'].strip)
-        instance_write(:file_size,       uploaded_file['size'].to_i)
+        @queued_for_write[:original]   = uploaded_file[:tempfile]
+        instance_write(:file_name,       uploaded_file[:filename].strip.gsub(/[^\w\d\.\-]+/, '_'))
+        instance_write(:content_type,    (uploaded_file[:content_type] || uploaded_file[:type]).strip)
+        instance_write(:file_size,       (uploaded_file[:size] || uploaded_file[:tempfile].size).to_i)
         instance_write(:updated_at,      Time.now)
       else
         @queued_for_write[:original]   = uploaded_file.to_tempfile
@@ -273,7 +273,7 @@ module Paperclip
 
     def valid_assignment? file #:nodoc:
       if file.respond_to?(:[])
-        file[:filename] && file[:content_type]
+        file[:filename] && ( file[:content_type] || file[:type] )
       else
         file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
       end
